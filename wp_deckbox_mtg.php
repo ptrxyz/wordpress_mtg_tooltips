@@ -1,11 +1,11 @@
 <?php
 /**
-Plugin Name: Magic the Gathering Card Tooltips
-Plugin URI: https://github.com/SebastianZaha/wordpress_mtg_tooltips
+Plugin Name: MtG Card Tooltips (pk)
+Plugin URI: https://github.com/ptrxyz/wordpress_mtg_tooltips
 Description: Easily transform Magic the Gathering card names into links that show the card
 image in a tooltip when hovering over them. You can also quickly create deck listings.
-Author: Sebastian Zaha
-Version: 3.1.2
+Author: Peter Krauss
+Version: 3.1.2-pk
 Author URI: http://deckbox.org
 */
 
@@ -32,7 +32,7 @@ if (! class_exists('Deckbox_Tooltip_plugin')) {
         private $_images_dir;
 	
         function __construct() {
-            $this->_name = 'Magic the Gathering Card Tooltips';
+            $this->_name = 'MtG Card Tooltips (pk)';
             $this->_optionName = 'deckbox_tooltip_options';
             $this->_value = array();	
             $this->_styles = array('tooltip', 'embedded');
@@ -115,14 +115,15 @@ if (! class_exists('Deckbox_Tooltip_plugin')) {
                         "title" => null,
                         "style" => $this->get_style_name(),
                     ), $atts)); 
-		  
-            if ($title) {
-                $response = '<h3 class="mtg_deck_title">' . $title . '</h3>';
-            }
+		              
             $response .= '<table class="mtg_deck mtg_deck_' . $style .
                 '" cellspacing="0" cellpadding="0" style="width:' .
-                $this->get_setting('deck_width') .'px;font-size:' . $this->get_setting('font_size') .
+                $this->get_setting('deck_width') .';font-size:' . $this->get_setting('font_size') .
                 '%;line-height:' .$this->get_setting('line_height'). '%"><tr><td>';
+
+            if ($title) {
+                $response .= '<span class="mtg_deck_title">' . $title . '</span></td></tr><tr><td>';
+            }
 
             $lines = $this->cleanup_shortcode_content($content);
             $response .= $this->parse_mtg_deck_lines($lines, $style) . '</td>';
@@ -137,6 +138,8 @@ if (! class_exists('Deckbox_Tooltip_plugin')) {
             $current_body = ''; 
             $first_card = null;
 
+            $html = "<ul>";
+            $html .= "<li style='display: block; float: left; margin-right: 20px;'><div>";
             for ($i = 0; $i < count($lines); $i++) {
                 $line = $lines[$i];
 
@@ -144,7 +147,7 @@ if (! class_exists('Deckbox_Tooltip_plugin')) {
                     $card_name = trim($bits[2]);
                     $first_card = $first_card == null ? $card_name : $first_card;
                     $card_name = str_replace("’", "'", $card_name);
-                    $line = $bits[1] . '&nbsp;<a class="deckbox_link" target="_blank" href="http://deckbox.org/mtg/'. $card_name .
+                    $line = $bits[1] . '<a class="deckbox_link" target="_blank" href="http://deckbox.org/mtg/'. $card_name .
                         '">' . $card_name . '</a><br />';
                     $current_body .= $line;
                     $current_count += intval($bits[1]);
@@ -152,25 +155,31 @@ if (! class_exists('Deckbox_Tooltip_plugin')) {
                     // Beginning of a new category. If this was not the first one, we put the previous one 
                     // into the response body.
                     if ($current_title != "") {
-                        $html .= '<span style="font-weight:bold">' . $current_title . ' (' .
+                        $html .= '<span class="deckbox_title">' . $current_title . ' (' .
                             $current_count . ')</span><br />';
                         $html .= $current_body;
                         if (preg_match("/Sideboard/", $line)) {
                             $html .= '</td><td>';
                         } else {
-                            $html .= '<br />';
+                            //$html .= '<br />';
                         }
                     }
                     $current_title = $line; $current_count = 0; $current_body = '';
+                    if (preg_match("/^(\/\/)(.*)/", $current_title)) {
+                        $current_title = substr($current_title, 2);
+                        $html .= "</div></li>";
+                        $html .= "<li style='display: block; float: left; margin-right: 20px;'><div>";
+                    }
                 }    
             }
-            $html .= '<span style="font-weight:bold">' . $current_title . ' (' . $current_count .
+            $html .= '<span class="deckbox_title">' . $current_title . ' (' . $current_count .
                 ')</span><br />' . $current_body;
 
             if ($style == 'embedded') {
                 $html .= '<td class="card_box"><img class="on_page" src="http://deckbox.org/mtg/' .
                     $first_card . '/tooltip" /></td>';
             }
+            $html .= "</div></li></ul>";
 
             return $html;
         }
@@ -178,9 +187,9 @@ if (! class_exists('Deckbox_Tooltip_plugin')) {
         function add_option_menu() {
             $title = '';
             if ( version_compare(get_bloginfo('version'), '2.6.999', '>')) {
-                $title = '<img src="'.$this->_images_dir.'deckbox_dragon.jpg" alt="deckbox.org" /> ';
+                //$title = '<img src="'.$this->_images_dir.'deckbox_dragon.jpg" alt="deckbox.org" /> ';
             }
-            $title .= ' Deckbox Tooltips';	
+            $title .= 'Deckbox Tooltips';	
 		
             add_options_page('Deckbox Tooltips', $title, 'read', 'magic-the-gathering-card-tooltips', 
                 array($this, 'draw_menu'));
@@ -209,7 +218,7 @@ if (! class_exists('Deckbox_Tooltip_plugin')) {
                             </th>
                             <td>
                               <input type="text" size="3" name="tooltip_deck_width" value="' .
-                                 $this->get_setting('deck_width') . '"/> px
+                                 $this->get_setting('deck_width') . '"/>
                             </td>
                           </tr><tr>
                             <th class="scope">

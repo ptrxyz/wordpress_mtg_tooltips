@@ -1,5 +1,29 @@
+.mtg_deck_embedded td {
+  border: none !important;
+}
+
+.mtg_deck_embedded tr {
+  background: white !important;
+}
+
 .mtg_deck_title {
-  text-decoration: underline;
+  font-weight: bold;
+  font-size: 150%;
+  text-decoration: none;
+}
+
+.mtg_deck ul {
+  margin-left: 0px;
+}
+
+.deckbox_link {
+  text-decoration: none;
+  margin-left: 10px;
+}
+
+.deckbox_title {
+  font-weight: bold;
+  line-height: 280%;
 }
 
 table.mtg_deck {
