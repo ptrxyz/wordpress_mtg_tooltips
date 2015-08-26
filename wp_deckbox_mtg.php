@@ -36,8 +36,8 @@ if (! class_exists('Deckbox_Tooltip_plugin')) {
             $this->_optionName = 'deckbox_tooltip_options';
             $this->_value = array();	
             $this->_styles = array('tooltip', 'embedded');
-            $this->_resources_dir = plugins_url().'/magic-the-gathering-card-tooltips/resources/';
-            $this->_images_dir = plugins_url().'/magic-the-gathering-card-tooltips/images/';
+            $this->_resources_dir = plugins_url().'/mtg_tooltips/resources/';
+            $this->_images_dir = plugins_url().'/mtg_tooltips/images/';
 			
             $this->loadSettings();
             $this->init();
